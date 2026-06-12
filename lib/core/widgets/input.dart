@@ -95,7 +95,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Icon(
               widget.prefixIcon,
-              color: const Color(0xFF607D8B),
+              color: Theme.of(context).colorScheme.secondary,
               size: 32,
             ),
           ),
