@@ -32,6 +32,7 @@ class CustomInputField extends StatefulWidget {
 
 class _CustomInputFieldState extends State<CustomInputField> {
   late bool _isObscured;
+  bool _hasError = false;
 
   @override
   void initState() {
@@ -46,7 +47,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFDDE1E7),
+          color: _hasError ? const Color(0xFFE53935) : const Color(0xFFDDE1E7),
           width: 1.5,
         ),
         boxShadow: [
@@ -62,7 +63,15 @@ class _CustomInputFieldState extends State<CustomInputField> {
         onChanged: widget.onChanged,
         keyboardType: widget.keyboardType,
         obscureText: _isObscured,
-        validator: widget.validator,
+        validator: (value) {
+          final error = widget.validator?.call(value);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() => _hasError = error != null);
+            }
+          });
+          return error;
+        },
         maxLines: widget.obscureText ? 1 : widget.maxLines,
         style: const TextStyle(
           fontSize: 15,
@@ -72,7 +81,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
         decoration: InputDecoration(
           labelText: widget.labelText,
           labelStyle: const TextStyle(
-            fontSize: 13,
+            fontSize: 14,
             color: Color(0xFF9AA5B4),
             fontWeight: FontWeight.w400,
           ),
@@ -110,6 +119,13 @@ class _CustomInputFieldState extends State<CustomInputField> {
             },
           )
               : widget.suffixIcon,
+          errorStyle: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: Color(0xFFE53935),
+          ),
+          errorBorder: InputBorder.none,
+          focusedErrorBorder: InputBorder.none,
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
