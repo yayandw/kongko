@@ -5,30 +5,22 @@ import '../../core/widgets/dialog.dart';
 import '../../core/widgets/input.dart';
 import '../../core/widgets/sliding.dart';
 
-class AuthPage extends StatefulWidget {
+class AuthPage extends StatelessWidget {
   const AuthPage({super.key});
 
-  @override
-  State<AuthPage> createState() => _AuthPageState();
-}
-
-class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
+      body: const SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.only(top: 72, left: 24, right: 24, bottom: 24),
+          padding: EdgeInsets.only(top: 72, left: 24, right: 24, bottom: 24),
           child: Column(
             children: [
-              Text(
-                'Kongko',
-                style: TextStyle(fontFamily: 'Matemasie', fontSize: 64),
-              ),
-              const SizedBox(height: 24),
-              const _AuthCard(),
+              _KongkoTitle(),
+              SizedBox(height: 24),
+              _AuthCard(),
             ],
           ),
         ),
@@ -37,14 +29,21 @@ class _AuthPageState extends State<AuthPage> {
   }
 }
 
-class _AuthCard extends StatefulWidget {
-  const _AuthCard();
+class _KongkoTitle extends StatelessWidget {
+  const _KongkoTitle();
 
   @override
-  State<_AuthCard> createState() => _AuthCardState();
+  Widget build(BuildContext context) {
+    return const Text(
+      'Kongko',
+      style: TextStyle(fontFamily: 'Matemasie', fontSize: 64),
+    );
+  }
 }
 
-class _AuthCardState extends State<_AuthCard> {
+class _AuthCard extends StatelessWidget {
+  const _AuthCard();
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -52,8 +51,8 @@ class _AuthCardState extends State<_AuthCard> {
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: SlidingSegmentedControl(
-          labels: ['LOGIN', 'REGISTER'],
-          children: [const _LoginPage(), const Text('REG')],
+          labels: const ['LOGIN', 'REGISTER'],
+          children: const [_LoginPage(), Text('REG')],
         ),
       ),
     );
@@ -86,6 +85,19 @@ class _LoginPageState extends State<_LoginPage> {
     }
   }
 
+  String? _validateEmail(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Email is required';
+    final emailRegex = RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value.trim())) return 'Invalid email format';
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) return 'Password is required';
+    if (value.length < 8) return 'Password must be at least 8 characters';
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -98,16 +110,7 @@ class _LoginPageState extends State<_LoginPage> {
             hintText: 'Input email here..',
             prefixIcon: Icons.mail_outline_rounded,
             keyboardType: TextInputType.emailAddress,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Email is required';
-              }
-              final emailRegex = RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$');
-              if (!emailRegex.hasMatch(value.trim())) {
-                return 'Invalid email format';
-              }
-              return null;
-            },
+            validator: _validateEmail,
           ),
           const SizedBox(height: 24),
           CustomInputField(
@@ -117,124 +120,144 @@ class _LoginPageState extends State<_LoginPage> {
             prefixIcon: Icons.lock_outline_rounded,
             keyboardType: TextInputType.text,
             obscureText: true,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Password is required';
-              }
-              if (value.length < 8) {
-                return 'Password must be at least 8 characters';
-              }
-              return null;
-            },
+            validator: _validatePassword,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Checkbox(
-                    value: _rememberMe,
-                    onChanged: (value) {
-                      setState(() => _rememberMe = value!);
-                    },
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  const Text(
-                    'Remember me',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF263238),
-                    ),
-                  ),
-                ],
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  'Forgot Password?',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF3D8BF8),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
+          _RememberMeRow(
+            rememberMe: _rememberMe,
+            onChanged: (value) => setState(() => _rememberMe = value!),
           ),
           const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _handleLogin,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(double.infinity, 48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              elevation: 2,
-            ),
-            child: const Text(
-              'LOGIN',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
+          _LoginButton(onPressed: _handleLogin),
           const SizedBox(height: 36),
-          Row(
-            children: const [
-              Expanded(
-                child: Divider(color: Color(0xFFDDE1E7), thickness: 1),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Text(
-                  'Or login with',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF9AA5B4),
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Divider(color: Color(0xFFDDE1E7), thickness: 1),
-              ),
-            ],
-          ),
+          const _OrDivider(),
           const SizedBox(height: 36),
-          Row(
-            children: [
-              Expanded(
-                child: _SocialLoginButton(
-                  label: 'Google',
-                  icon: SvgPicture.asset(
-                    'assets/icons/google.svg',
-                    width: 22,
-                    height: 22,
-                  ),
-                  onPressed: () {},
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _SocialLoginButton(
-                  label: 'Apple',
-                  icon: SvgPicture.asset(
-                    'assets/icons/apple.svg',
-                    width: 22,
-                    height: 22,
-                  ),
-                  onPressed: () {},
-                ),
-              ),
-            ],
-          ),
+          _SocialLoginRow(),
         ],
       ),
+    );
+  }
+}
+
+class _RememberMeRow extends StatelessWidget {
+  final bool rememberMe;
+  final ValueChanged<bool?> onChanged;
+
+  const _RememberMeRow({
+    required this.rememberMe,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Checkbox(
+              value: rememberMe,
+              onChanged: onChanged,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+            ),
+            const Text(
+              'Remember me',
+              style: TextStyle(fontSize: 12, color: Color(0xFF263238)),
+            ),
+          ],
+        ),
+        TextButton(
+          onPressed: () {},
+          child: const Text(
+            'Forgot Password?',
+            style: TextStyle(
+              fontSize: 12,
+              color: Color(0xFF3D8BF8),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LoginButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _LoginButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
+        minimumSize: const Size(double.infinity, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        elevation: 2,
+      ),
+      child: const Text(
+        'LOGIN',
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+}
+
+class _OrDivider extends StatelessWidget {
+  const _OrDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      children: [
+        Expanded(child: Divider(color: Color(0xFFDDE1E7), thickness: 1)),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            'Or login with',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFF9AA5B4),
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+        Expanded(child: Divider(color: Color(0xFFDDE1E7), thickness: 1)),
+      ],
+    );
+  }
+}
+
+class _SocialLoginRow extends StatelessWidget {
+  const _SocialLoginRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _SocialLoginButton(
+            label: 'Google',
+            icon: SvgPicture.asset('assets/icons/google.svg', width: 22, height: 22),
+            onPressed: () {},
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _SocialLoginButton(
+            label: 'Apple',
+            icon: SvgPicture.asset('assets/icons/apple.svg', width: 22, height: 22),
+            onPressed: () {},
+          ),
+        ),
+      ],
     );
   }
 }
@@ -256,9 +279,7 @@ class _SocialLoginButton extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         minimumSize: const Size(double.infinity, 48),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         elevation: 2,
       ),
       child: Row(
