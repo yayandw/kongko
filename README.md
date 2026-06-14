@@ -1,6 +1,6 @@
 # Kongko
 
-![Kongko Banner](https://via.placeholder.com/1000x300?text=Kongko+Communication+Platform)
+![Kongko Banner](https://capsule-render.vercel.app/render?type=soft&color=auto&text=Kongko&fontSize=70)
 
 **Kongko** is a modern, high-performance communication platform built with Flutter. Designed for seamless connectivity, it provides a secure environment for instant messaging, high-quality audio calls, and crystal-clear video conferencing.
 
